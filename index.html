@@ -1,0 +1,509 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Mapa do Funil-IP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#FBFAF7;
+    --ink:#1A1916;
+    --ink-soft:#534E46;
+    --ink-faint:#8A8377;
+    --mark:rgba(214,170,84,0.30);
+    --rule:rgba(26,25,22,0.13);
+    --rule-soft:rgba(26,25,22,0.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Newsreader',Georgia,serif;
+    font-size:19px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+    padding:clamp(2.5rem,6vw,5rem) 1.4rem 4rem;
+  }
+  .doc{max-width:660px;margin:0 auto}
+
+  /* rótulos / mono */
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--ink-faint);
+    padding-bottom:1.6rem;margin-bottom:2rem;
+    border-bottom:1px solid var(--rule);
+  }
+
+  h1{
+    font-weight:600;
+    font-size:clamp(1.9rem,5vw,2.8rem);
+    line-height:1.14;
+    letter-spacing:-0.015em;
+    margin-bottom:1.4rem;
+  }
+  h1 mark{background:var(--mark);color:inherit;padding:0 .12em}
+
+  .lede{
+    font-size:clamp(1.1rem,2.4vw,1.28rem);
+    line-height:1.55;
+    color:var(--ink-soft);
+    margin-bottom:2.6rem;
+  }
+
+  h2{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.78rem;font-weight:500;
+    letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--ink);
+    margin:3rem 0 1.1rem;
+    padding-top:1.6rem;
+    border-top:1px solid var(--rule-soft);
+  }
+
+  p{margin-bottom:1.1rem}
+  p.tight{margin-bottom:0.2rem}
+  strong{font-weight:600}
+  em{font-style:italic}
+
+  .lines p{margin-bottom:0.25rem}
+  .spacer{height:1.1rem}
+
+  ul,ol{margin:0 0 1.2rem 0;padding-left:1.3rem}
+  li{margin-bottom:0.5rem}
+
+  /* placeholders de imagem */
+  .img{
+    border:1px dashed var(--rule);
+    background:rgba(26,25,22,0.02);
+    border-radius:4px;
+    padding:2.4rem 1.4rem;
+    text-align:center;
+    margin:1.8rem 0;
+    color:var(--ink-faint);
+  }
+  .img .cap{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;
+  }
+  .img .desc{font-size:0.92rem;margin-top:0.5rem;color:var(--ink-soft)}
+
+  /* milestone tempo */
+  .milestone{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--ink);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:0.5rem 0.9rem;
+    display:inline-block;
+    margin-bottom:1rem;
+  }
+
+  /* oferta / preço */
+  .price-line{font-size:1.15rem;margin-bottom:0.4rem}
+  .price{font-size:1.15rem;font-weight:400;line-height:1.4;margin-bottom:0.4rem}
+  .price .amt{font-size:1.5rem;font-weight:600;letter-spacing:-0.01em}
+
+  .cta{
+    display:block;
+    background:var(--ink);
+    color:var(--paper);
+    text-decoration:none;
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.92rem;letter-spacing:0.06em;
+    padding:1.15rem 1.5rem;
+    border-radius:5px;
+    margin:1.8rem 0 0.7rem;
+    transition:transform .15s ease,opacity .15s ease;
+  }
+  .cta:hover{transform:translateY(-1px);opacity:.92}
+  .cta-sub{
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+
+  .ps{
+    margin-top:3rem;padding-top:1.6rem;
+    border-top:1px solid var(--rule-soft);
+    font-size:0.98rem;color:var(--ink-soft);
+  }
+  .ps b{font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink)}
+
+  /* diagrama do funil */
+  .funnel{margin:2rem 0 2.2rem;display:flex;flex-direction:column;align-items:center;gap:0}
+  .stage{
+    width:100%;
+    border:1px solid var(--rule);
+    border-radius:5px;
+    background:rgba(26,25,22,0.015);
+    padding:0.85rem 1.1rem;
+    display:flex;align-items:baseline;gap:0.9rem;
+  }
+  .stage .n{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;color:var(--ink-faint);
+    flex-shrink:0;letter-spacing:0.05em;
+  }
+  .stage .nm{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.82rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--ink);flex-shrink:0;
+  }
+  .stage .ds{
+    font-size:0.96rem;color:var(--ink-soft);
+    margin-left:auto;text-align:right;font-style:italic;
+  }
+  .arrow{
+    width:0;height:0;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    border-top:6px solid var(--rule);
+    margin:0.45rem 0;
+  }
+  .funnel-out{
+    margin-top:0.5rem;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.74rem;letter-spacing:0.16em;text-transform:uppercase;
+    color:var(--ink);
+    background:var(--mark);
+    padding:0.55rem 1rem;border-radius:5px;
+  }
+  /* afunilamento sutil (desktop) */
+  .stage.s1{max-width:100%}
+  .stage.s2{max-width:90%}
+  .stage.s3{max-width:80%}
+  .stage.s4{max-width:70%}
+  @media (max-width:520px){
+    .stage{flex-direction:column;gap:0.25rem;align-items:flex-start}
+    .stage .ds{margin-left:0;text-align:left}
+    .stage.s1,.stage.s2,.stage.s3,.stage.s4{max-width:100%}
+  }
+
+  /* board estilo Miro */
+  .board{
+    margin:1.8rem 0 1rem;
+    border:1px solid var(--rule);
+    border-radius:8px;
+    overflow:hidden;
+    background:#FCFBF8;
+  }
+  .board svg{display:block;width:100%;height:auto}
+  .board-cap{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--ink-faint);
+    text-align:center;margin:-0.2rem 0 2rem;
+  }
+
+  /* blocos "o que você recebe" */
+  .recv{display:flex;flex-direction:column;gap:1.25rem;margin:1.7rem 0 0.4rem}
+  .recv .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.74rem;letter-spacing:0.13em;text-transform:uppercase;
+    color:var(--ink);display:block;margin-bottom:0.3rem;
+  }
+  .recv .tag b{color:var(--ink-faint);font-weight:400;margin-right:0.6rem}
+  .recv p{margin:0;color:var(--ink-soft)}
+  .recv p .arrive{color:var(--ink)}
+  .recv p strong{color:var(--ink);font-weight:600}
+
+  /* artefato: uma página do Mapa */
+  .page-art{
+    position:relative;
+    background:#FFFFFF;
+    border:1px solid var(--rule);
+    border-radius:6px;
+    box-shadow:0 16px 38px -28px rgba(26,25,22,0.45);
+    padding:1.9rem 1.8rem 2.4rem;
+    margin:1.8rem 0 0.55rem;
+  }
+  .page-fade{
+    position:absolute;left:0;right:0;bottom:0;height:92px;
+    background:linear-gradient(to bottom, rgba(255,255,255,0), #FFFFFF 78%);
+    border-radius:0 0 6px 6px;pointer-events:none;
+  }
+  .page-cont{
+    position:absolute;left:0;right:0;bottom:0.7rem;text-align:center;
+    font-family:'JetBrains Mono',monospace;font-weight:500;
+    font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:#B23A2B;
+  }
+  .page-art .ph{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink);
+  }
+  .page-art .psub{font-style:italic;color:var(--ink-faint);font-size:0.95rem;margin:0.28rem 0 0.2rem}
+  .page-art .seclab{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);
+    margin:1.35rem 0 0.55rem;padding-top:1.2rem;border-top:1px solid var(--rule-soft);
+  }
+  .page-art .ex{font-size:0.98rem;line-height:1.55;color:var(--ink-soft);margin:0}
+  .page-art .field{font-size:0.96rem;color:var(--ink);margin:0.45rem 0}
+  .page-art .field .fill{color:var(--ink-faint);letter-spacing:0.04em}
+  .page-art .field-more{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;letter-spacing:0.06em;color:var(--ink-faint);
+    margin:0.7rem 0 0;font-style:normal;
+  }
+  .page-art .prompt{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.73rem;line-height:1.7;color:var(--ink-soft);
+    background:rgba(26,25,22,0.04);
+    border-radius:4px;padding:0.9rem 1rem;margin:0;white-space:pre-wrap;
+  }
+</style>
+
+<div class="doc">
+
+  <div class="eyebrow">IP — Inteligência Persuasiva</div>
+
+  <h1>Sua estratégia digital ainda não está no nível do seu <mark>conhecimento</mark>.</h1>
+
+  <p class="lede">Se você tem um produto ou um serviço bom de verdade, mas ainda não conseguiu fazer ele vender na internet como você sabe que poderia — esse documento é pra você. Leia até o final.</p>
+
+  <div class="lines">
+    <p class="tight">Você provavelmente já tentou de algum jeito.</p>
+    <p class="tight">Já estudou, já testou, já colocou tempo e dinheiro nisso.</p>
+    <p class="tight">E mesmo assim, vê gente vendendo na sua área — gente que nem é tão boa quanto você — enquanto o que você faz continua passando despercebido.</p>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="lines">
+    <p class="tight">E em algum momento bate aquela dúvida chata, baixinho:</p>
+    <p class="tight"><em>"será que o problema sou eu?"</em></p>
+  </div>
+
+  <div class="spacer"></div>
+
+  <p><strong>Não é.</strong> O que faltou pra você não foi esforço, nem capacidade. Foi uma peça que quase ninguém te explica direito — e não é o que você imagina.</p>
+
+  <h2>A verdade que ninguém te conta</h2>
+
+  <p>Todo mundo hoje corre atrás de Inteligência Artificial pra vender. E faz sentido — a IA é uma ferramenta incrível, que faz a gente executar em dias o que levaria meses.</p>
+
+  <p class="tight"><strong>Mas a IA sozinha não vende nada pra você.</strong></p>
+  <p>Ela produz. Quem vende é outra coisa.</p>
+
+  <p>O seu produto depende de um pilar muito mais essencial — o que eu chamo de <strong>Inteligência Persuasiva</strong>. A IP é o que faz a diferença entre um produto que você "acha que vai dar bom" e um funil de vendas que conecta de verdade.</p>
+
+  <p class="tight">A IA facilita.</p>
+  <p><strong>Mas quem vende é a IP.</strong></p>
+
+  <h2>O que compõe um funil que vende</h2>
+
+  <p>Pra criar um funil de vendas que realmente converte, você precisa de quatro coisas, na ordem certa:</p>
+
+  <ol>
+    <li><strong>O avatar</strong> — pra quem você vai vender.</li>
+    <li><strong>A oferta</strong> — o que você vai vender.</li>
+    <li><strong>A copy</strong> — como você vai vender.</li>
+    <li><strong>Os conteúdos</strong> — o que leva isso até as pessoas.</li>
+  </ol>
+
+  <p>Você pode até pensar que isso não tem nada de novo. E você tá certo. Mais ou menos. O que muda tudo é saber aplicar a IA da maneira certa em cada um desses pilares — e é exatamente isso que a Inteligência Persuasiva organiza.</p>
+
+  <div class="funnel">
+    <div class="stage s1"><span class="n">01</span><span class="nm">Avatar</span><span class="ds">pra quem você vende</span></div>
+    <div class="arrow"></div>
+    <div class="stage s2"><span class="n">02</span><span class="nm">Oferta</span><span class="ds">o que você vende</span></div>
+    <div class="arrow"></div>
+    <div class="stage s3"><span class="n">03</span><span class="nm">Copy</span><span class="ds">como você vende</span></div>
+    <div class="arrow"></div>
+    <div class="stage s4"><span class="n">04</span><span class="nm">Conteúdos</span><span class="ds">o que leva até as pessoas</span></div>
+    <div class="arrow"></div>
+    <div class="funnel-out">→ Seu Funil-IP no ar</div>
+  </div>
+
+  <h2>A parte difícil não é o que você pensa</h2>
+
+  <div class="lines">
+    <p class="tight">A maioria acha que a parte difícil de vender na internet é gravar vídeo, aparecer, editar, colocar no ar.</p>
+    <p class="tight">Não é.</p>
+    <p class="tight">Isso é a parte fácil — é mecânica, ainda mais com a IA hoje.</p>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="lines">
+    <p class="tight">A parte difícil — onde todo mundo trava e desiste — é o <strong>funil em si</strong>.</p>
+    <p class="tight">É acertar pra quem você fala, o que você oferece, e como você comunica.</p>
+    <p class="tight">É ter as peças certas, conectadas do jeito certo.</p>
+    <p class="tight">É isso que separa quem vende de quem fica tentando.</p>
+  </div>
+
+  <h2>O que é o Mapa do Funil-IP</h2>
+
+  <div class="milestone">Em até 3 dias</div>
+
+  <p>O Mapa do Funil-IP é o processo que te leva, passo a passo, do zero até o <strong>desenho completo do seu funil de vendas</strong> — o seu avatar, a sua oferta, a sua copy, os seus conteúdos. Tudo conectado, tudo visual, tudo feito de forma eficiente com a IA.</p>
+
+  <p>Quando eu digo desenho completo, é isso mesmo: você sai com o <strong>mapa inteiro do seu funil na sua frente</strong>. Não pedaços soltos — a estrutura completa, do começo ao fim, pra você enxergar exatamente pra onde cada peça leva.</p>
+
+  <p>E o que sozinho te levaria meses de tentativa e erro, você desenha em <strong>até 3 dias</strong>.</p>
+
+  <div class="board">
+    <svg viewBox="0 0 600 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa do funil: anúncio e orgânico levam à página, depois à oferta e à ascensão">
+      <defs>
+        <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="1" fill="rgba(26,25,22,0.07)"/>
+        </pattern>
+        <marker id="ah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L6,3 L0,6" fill="none" stroke="rgba(26,25,22,0.34)" stroke-width="1"/>
+        </marker>
+        <style>
+          .lab{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;fill:#1A1916}
+          .ds{font-family:'Newsreader',serif;font-style:italic;font-size:13px;fill:#8A8377}
+          .card{fill:#FFFFFF;stroke:rgba(26,25,22,0.18);stroke-width:1}
+          .conn{stroke:rgba(26,25,22,0.30);stroke-width:1.3;fill:none}
+        </style>
+      </defs>
+
+      <rect x="0" y="0" width="600" height="480" fill="url(#dots)"/>
+
+      <!-- conectores (desenhados antes dos cards) -->
+      <path class="conn" d="M150,98 C150,135 300,120 300,158" marker-end="url(#ah)"/>
+      <path class="conn" d="M450,98 C450,135 300,120 300,158" marker-end="url(#ah)"/>
+      <path class="conn" d="M300,214 L300,262" marker-end="url(#ah)"/>
+      <path class="conn" d="M300,326 L300,374" marker-end="url(#ah)"/>
+
+      <!-- topo: duas fontes de tráfego -->
+      <g>
+        <rect class="card" x="60" y="62" width="180" height="38" rx="6"/>
+        <text class="lab" x="150" y="86" text-anchor="middle">Anúncio</text>
+        <text class="ds" x="150" y="120" text-anchor="middle">tráfego pago</text>
+      </g>
+      <g>
+        <rect class="card" x="360" y="62" width="180" height="38" rx="6"/>
+        <text class="lab" x="450" y="86" text-anchor="middle">Orgânico</text>
+        <text class="ds" x="450" y="120" text-anchor="middle">Reels que alcançam</text>
+      </g>
+
+      <!-- página / vsl -->
+      <g>
+        <rect class="card" x="200" y="160" width="200" height="54" rx="6"/>
+        <text class="lab" x="300" y="183" text-anchor="middle" style="font-size:12px;letter-spacing:1px">Página de conversão</text>
+        <text class="ds" x="300" y="202" text-anchor="middle">onde você apresenta e vende</text>
+      </g>
+
+      <!-- oferta (destaque âmbar) -->
+      <g>
+        <rect x="200" y="272" width="200" height="54" rx="6" fill="rgba(214,170,84,0.30)" stroke="rgba(170,128,52,0.55)" stroke-width="1"/>
+        <text class="lab" x="300" y="295" text-anchor="middle">Oferta</text>
+        <text class="ds" x="300" y="314" text-anchor="middle">o sim do cliente</text>
+      </g>
+
+      <!-- ascensão -->
+      <g>
+        <rect class="card" x="200" y="384" width="200" height="54" rx="6"/>
+        <text class="lab" x="300" y="407" text-anchor="middle">Ascensão</text>
+        <text class="ds" x="300" y="426" text-anchor="middle">onde mora o seu faturamento</text>
+      </g>
+    </svg>
+  </div>
+  <p class="board-cap">Exemplo do esqueleto de um Funil-IP</p>
+
+  <h2>O que você recebe</h2>
+
+  <p>Lembra dos quatro pilares que separam quem vende de quem fica tentando? O Mapa é construído exatamente em cima deles. Não é um curso pra assistir — é um documento de trabalho que te faz <em>chegar</em> em cada peça do seu funil.</p>
+
+  <p class="tight">Em cada pilar, você tem três coisas:</p>
+  <ul>
+    <li><strong>A lógica</strong> — o princípio por trás, direto ao ponto, sem aula.</li>
+    <li><strong>A construção</strong> — as perguntas que destravam e fazem você montar aquela peça sobre o <em>seu</em> negócio.</li>
+    <li><strong>O prompt</strong> — tão completo que parece um contrato. É ele que vira seu consultor de IA e faz o trabalho pesado.</li>
+  </ul>
+
+  <div class="page-art">
+    <div class="ph">Pilar 01 — Avatar</div>
+    <div class="psub">Começa pelo problema. Quem tem o problema é o avatar.</div>
+
+    <div class="seclab">A Lógica</div>
+    <p class="ex">O maior erro de quem tenta vender é achar que o produto vende sozinho porque tem valor. A mesma oferta, mostrada pra pessoa errada, é ignorada. Mostrada pra pessoa certa, no momento certo, vira desejo.</p>
+
+    <div class="seclab">A Construção</div>
+    <p class="field">A autoimagem dele: como se mostra pro mundo, e como se sente por dentro. <span class="fill">→ _______________</span></p>
+    <p class="field">O que ele não admite em voz alta — "no fundo, ele sabe que…" <span class="fill">→ _______________</span></p>
+    <p class="field">As palavras exatas que ele usa, com gíria e tudo. <span class="fill">→ _______________</span></p>
+    <p class="field-more">+ mais de 20 campos só neste pilar</p>
+
+    <div class="seclab">O Prompt</div>
+    <p class="prompt">Você é um estrategista de avatar de elite. Vou te dar o que já sei sobre o problema que resolvo e sobre quem tem esse problema.
+
+REGRA Nº 1: não invente. Se faltar informação pra deixar o avatar específico, me entreviste primeiro — perguntas certeiras, dizendo por que cada uma importa.
+
+Depois, me devolva o desejo primário por baixo da dor, as objeções que travam a compra, e as palavras exatas pra eu usar na copy...</p>
+
+    <div class="page-fade"></div>
+    <div class="page-cont">↓ para continuar, acesse o Mapa do Funil-IP ↓</div>
+  </div>
+  <p class="board-cap">O trecho acima representa menos de 10% do conteúdo do Mapa completo</p>
+
+  <p>E ao fim de cada pilar você não sai com teoria. Sai com uma peça pronta do seu funil:</p>
+
+  <div class="recv">
+    <div>
+      <span class="tag"><b>01</b> Avatar</span>
+      <p><span class="arrive">Você chega sem saber exatamente pra quem fala.</span> Sai com o seu avatar mapeado — a dor exata, os medos, os desejos e as palavras que ele usa — e a confirmação de que essa dor realmente vende.</p>
+    </div>
+    <div>
+      <span class="tag"><b>02</b> Oferta</span>
+      <p><span class="arrive">Você chega com um produto que "acha que é bom".</span> Sai com uma oferta montada peça por peça a partir da dor, com um mecanismo — a sua tese — que te separa de todo mundo no seu mercado.</p>
+    </div>
+    <div>
+      <span class="tag"><b>03</b> Copy</span>
+      <p><span class="arrive">Você chega sem saber o que dizer pra se diferenciar.</span> Sai com a sua big idea e a mensagem central da marca — esses são os esqueletos de literalmente todos os seus conteúdos.</p>
+    </div>
+  </div>
+
+  <p>Quando essas peças se conectam, o esqueleto do seu funil aparece inteiro na sua frente — igual ao mapa ali de cima. Esse é o destino: do zero ao desenho completo, em até 3 dias.</p>
+
+  <h2>A prova mais honesta que eu tenho</h2>
+
+  <p>Esse documento que você tá lendo agora, o anúncio que te trouxe até aqui, a oferta que eu vou te fazer daqui a pouco — o avatar, a copy, a estrutura, tudo isso — eu construí usando exatamente esse método. A IA aplicada com a Inteligência Persuasiva.</p>
+
+  <p>Não tô dizendo isso pra me gabar. Tô dizendo porque é a prova mais honesta que existe: <strong>você tá vendo o método funcionando na sua frente, agora.</strong> E se ele funciona pra me trazer até você, funciona pra levar o que você faz até as pessoas certas.</p>
+
+  <h2>Pra quem é (e pra quem não é)</h2>
+
+  <p class="tight"><strong>É pra você se:</strong></p>
+  <ul>
+    <li>Você tem um produto ou serviço bom de verdade.</li>
+    <li>Você quer parar de adivinhar e ter o caminho inteiro na frente.</li>
+    <li>Você topa fazer o trabalho — preencher, pensar, construir.</li>
+  </ul>
+
+  <p class="tight"><strong>Não é pra você se:</strong></p>
+  <ul>
+    <li>Você quer um botão mágico que vende sozinho sem você fazer nada.</li>
+    <li>Você só quer consumir mais conteúdo e não aplicar.</li>
+  </ul>
+
+  <h2>A oferta</h2>
+
+  <p>O Mapa do Funil-IP completo — os quatro pilares, a lógica, a construção e os prompts-consultor — pra você desenhar o seu funil em até 3 dias.</p>
+
+  <p class="price-line">E isso não vai te custar 2 mil reais, nem 500.</p>
+  <p class="price">Só <span class="amt">R$47</span> comprando agora nessa página.</p>
+
+  <p style="margin-top:1rem">Menos do que você provavelmente já gastou tentando descobrir isso sozinho — em curso, em anúncio que não converteu, ou só no tempo que passou batendo na trave. A diferença é que dessa vez você tem o caminho inteiro na frente, em vez de adivinhar.</p>
+
+  <a class="cta" href="https://pay.kiwify.com.br/oXacVNr">QUERO O MAPA DO FUNIL-IP →</a>
+  <div class="cta-sub">Acesso imediato · Garantia de 7 dias</div>
+
+  <h2>Uma última coisa, de verdade</h2>
+
+  <p>Essa janela é agora. A IA é uma vantagem absurda nesse momento porque pouca gente sabe usar ela com direção — com IP. Daqui a um tempo isso vira o básico, e todo mundo vai estar fazendo. Quem dominar agora sai na frente. Quem esperar, vai ter que correr atrás num mercado cada vez mais sofisticado.</p>
+
+  <div class="ps">
+    <p><b>P.S.</b></p>
+    <p>Se você leu até aqui, você não é do tipo que desiste — você é do tipo que tá procurando a peça que faltava. Ela tá aqui. O convite tá feito.</p>
+  </div>
+
+</div>
